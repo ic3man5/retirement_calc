@@ -1,0 +1,118 @@
+import { LineEdit , Button} from "std-widgets.slint";
+export component SpinBoxLabel inherits HorizontalLayout {
+    spacing: 3px;
+    padding: 6px;
+    //alignment: space-around;
+
+    in property <string> name;
+    in property <float> value;
+    in property <string> label;
+
+    Text {
+        text: name + ":";
+        color: lightsteelblue;
+        font-size: 14px;
+        horizontal-alignment: left;
+        vertical-alignment: center;
+    }
+
+    Text {
+        text: label;
+        color: white;
+        font-size: 16px;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+    }
+
+    LineEdit {
+        font-size: 14px;
+        width: parent.width*0.5;
+        //height: parent.height;
+        placeholder-text: "Enter here " + value;
+    }
+}
+
+export component MainWindow inherits Window {
+    title: "Retirement Calculator";
+    //width: 800px;
+    //height: 600px;
+    min-width: 800px;
+    min-height: 500px;
+    VerticalLayout {
+        SpinBoxLabel {
+            name: "Current Age";
+            value: 35;
+            label: "";
+        }
+        SpinBoxLabel {
+            name: "Retirement Age";
+            value: 59.5;
+            label: "";
+        }
+        SpinBoxLabel {
+            name: "Social Security Age";
+            value: 69;
+            label: "";
+        }
+        SpinBoxLabel {
+            name: "Life Expectancy";
+            value: 85;
+            label: "";
+        }
+        SpinBoxLabel {
+            name: "Starting Balance";
+            value: 20000.0;
+            label: "$";
+        }
+        SpinBoxLabel {
+            name: "Social Security Income";
+            value: 85;
+            label: "$";
+        }
+        SpinBoxLabel {
+            name: "Investment return before retirement";
+            value: 6.0;
+            label: "%";
+        }
+        SpinBoxLabel {
+            name: "Investment return after retirement";
+            value: 6.0;
+            label: "%";
+        }
+        SpinBoxLabel {
+            name: "Inflation Rate";
+            value: 3;
+            label: "%";
+        }
+        SpinBoxLabel {
+            name: "Annual income needed after retirement";
+            value: 6.0;
+            label: "%";
+        }
+        SpinBoxLabel {
+            name: "Annual income post retirement decay per year";
+            value: 10;
+            label: "%";
+        }
+
+        Button { 
+            text: "Calculate";
+        }
+        Rectangle {
+            //width: parent.width;
+            height: 300px;
+            background: white;
+            Text {
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                text: "Line Graph will go here";
+                font-size: 20px;
+                color: black;
+            }
+        }
+        
+        Button { 
+            text: "Export";
+        }
+    }
+}
