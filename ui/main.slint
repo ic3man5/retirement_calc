@@ -2,13 +2,16 @@ import { LineEdit , Button, GridBox} from "std-widgets.slint";
 
 export component NumberField inherits Rectangle {
     in property <string> title: "Default title here";
-    in-out property <string> text: "";
-    in property <string> placeholder_text: "Start typing here...";
+    in-out property text <=> txt.text;
+    in-out property placeholder_text <=> txt.placeholder_text;
     in property <string> prefix_text: "";
     in property <string> suffix_text: "";
     in property <string> tooltip_text: "";
-    //in property <int> title_font_size: 16;
-    //in property <int> entry_font_size: 14;
+    in property <int> title_font_size: 16;
+    in property <int> entry_font_size: 14;
+
+    callback edited <=> txt.edited;
+
     preferred-width: 100%;
     min-height: 58px;
     min-width: 50px;
@@ -23,18 +26,17 @@ export component NumberField inherits Rectangle {
         x: 8px;
         y: 4px;
 
-        font-size: 14px;
+        font-size: title_font_size * 1px;
         text: title;
     }
     // Text Entry field
-    LineEdit {
+    txt := LineEdit {
         x: 35px;
         y: 24px;
         height: 24px;
         width: root.width - 40px;
         
-        font-size: 14px;
-        placeholder-text: placeholder_text;
+        font-size: entry_font_size * 1px;
     }
     // Prefix
     Text {
@@ -72,129 +74,206 @@ export component NumberField inherits Rectangle {
     }
 }
 
-export component SpinBoxLabel inherits HorizontalLayout {
-    spacing: 3px;
-    padding: 6px;
-    //alignment: space-around;
-
-    in property <string> name;
-    in property <float> value;
-    in property <string> label;
-
-    Text {
-        text: name + ":";
-        color: lightsteelblue;
-        font-size: 14px;
-        horizontal-alignment: left;
-        vertical-alignment: center;
-    }
-
-    Text {
-        text: label;
-        color: white;
-        font-size: 16px;
-        horizontal-alignment: right;
-        vertical-alignment: center;
-    }
-
-    LineEdit {
-        font-size: 14px;
-        width: parent.width*0.5;
-        //height: parent.height;
-        placeholder-text: "Enter here " + value;
-    }
-}
-
 export component MainWindow inherits Window {
     title: "Retirement Calculator";
     //width: 800px;
     //height: 600px;
     min-width: 800px;
     min-height: 500px;
+    out property current_age <=> CurrentAgeField.value;
+    out property death_age <=> AgeOfDeathField.value;
+    out property retirement_age <=> RetirementAgeField.value;
+    out property social_security_age <=> SSAgeField.value;
+    out property starting_balance <=> StartingBalanceField.value;
+    out property social_security_monthly <=> SSMonthlyIncomeField.value;
+    out property monthly_contribution <=> MonthlyContributionField.value;
+    out property yield_before_retirement <=> YieldBeforeField.value;
+    out property yield_after_retirement <=> YieldAfterField.value;
+    out property inflation_rate <=> InflationRateField.value;
+    out property annual_income_post <=> AnnualIncomePostField.value;
+    out property annual_income_post_decay <=> AnnualIncomePostDecayField.value;
+
+    callback calculate();
+
     VerticalLayout {
         GridBox { 
             spacing: 10px;
             padding: 10px;
             Row {
-                NumberField {
+                CurrentAgeField := NumberField {
                     title: "Current Age";
-                    placeholder-text: 36;
                     suffix-text: "years";
+                    placeholder-text: self.value;
+                    property <float> value: 36;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
-                NumberField {
+                AgeOfDeathField := NumberField {
                     title: "Age of Death";
-                    placeholder-text: 85;
                     suffix-text: "years";
+                    placeholder-text: self.value;
+                    property <float> value: 85;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
             }
             Row {
-                NumberField {
+                RetirementAgeField := NumberField {
                     title: "Retirement Age";
-                    placeholder-text: 59.5;
                     suffix-text: "years";
+                    placeholder-text: self.value;
+                    property <float> value: 59.5;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
-                NumberField {
+                SSAgeField := NumberField {
                     title: "Social Security Age";
-                    placeholder-text: 67;
                     suffix-text: "years";
+                    placeholder-text: self.value;
+                    property <float> value: 67;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
             }
             Row {
-                NumberField {
+                StartingBalanceField := NumberField {
                     title: "Starting Balance";
-                    placeholder-text: 20000;
                     prefix-text: "$";
+                    placeholder-text: self.value;
+                    property <float> value: 20000;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
-                NumberField {
+                SSMonthlyIncomeField := NumberField {
                     title: "Social Security Monthly Income";
-                    placeholder-text: 20000;
                     prefix-text: "$";
+                    placeholder-text: self.value;
+                    property <float> value: 3500;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
-                NumberField {
-                    title: "Montly Contribution";
-                    placeholder-text: 1000;
+                MonthlyContributionField := NumberField {
+                    title: "Monthly Contribution";
                     prefix-text: "$";
+                    placeholder-text: self.value;
+                    property <float> value: 1000;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
             }
             Row {
-                
-            }
-            Row {
-                NumberField {
+                YieldBeforeField := NumberField {
                     title: "Investment yield before retirement";
-                    placeholder-text: "7.0";
                     suffix-text: "%";
+                    placeholder-text: self.value;
+                    property <float> value: 7.0;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
-                NumberField {
+                YieldAfterField := NumberField {
                     title: "Investment yield after retirement";
-                    placeholder-text: "7.0";
                     suffix-text: "%";
+                    placeholder-text: self.value;
+                    property <float> value: 7.0;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
-                NumberField {
+                InflationRateField := NumberField {
                     title: "Inflation rate";
-                    placeholder-text: "3.0";
                     suffix-text: "%";
+                    placeholder-text: self.value;
+                    property <float> value: 3.0;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
             }
             Row {
-                NumberField {
+                AnnualIncomePostField := NumberField {
                     title: "Annual income needed post-retirement";
-                    placeholder-text: "7.0";
                     suffix-text: "%";
+                    placeholder-text: self.value;
+                    property <float> value: 7.0;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
-
-                NumberField {
+                AnnualIncomePostDecayField := NumberField {
                     title: "Annual income post-retirement decay";
-                    placeholder-text: "10.0";
                     suffix-text: "%";
+                    placeholder-text: self.value;
+                    property <float> value: 10.0;
+                    edited(string) => {
+                        if (self.text.is-float()) {
+                            self.value = self.text.to-float();
+                        } else {
+                            self.value = self.placeholder_text.to-float();
+                        }
+                    }
                 }
             }
         }
 
         Button { 
             text: "Calculate";
+            clicked => {
+                root.calculate();
+            }
         }
-        Rectangle {
+        LineGraphImage := Rectangle {
             //width: parent.width;
             height: 300px;
             background: white;
