@@ -1,3 +1,5 @@
+use num_format::{Locale, ToFormattedString};
+
 slint::include_modules!();
 
 /// Calculates compound interest and returns the Accrued amount (Principal + Interest)
@@ -30,17 +32,12 @@ pub fn compound_interest(p: f32, r: f32, n: f32, t: f32) -> f32 {
 
 pub fn compound_interest_with_contrib(p: f32, r: f32, n: f32, t: f32, pmt: f32) -> f32 {
     // https://www.bizskinny.com/Finance/Compound-Interest/compound-interest-with-monthly-contributions.php
-    let accurred = compound_interest(p, r, n, t);
     // A = P(1+(r/n))^(nt) + (PMT(1+(r/n))^(nt)-1) / (r/n)
-    let accurred = (p*(1.0+(r/n)).powf(n*t)) +
-        ((pmt*(1.0+(r/n)).powf(n*t)-1.0) / (r/n));
-    println!("{accurred}");
-    accurred
-}
-
-pub fn compound_interest_with_contribution(p: f32, r: f32, n: f32, t: f32, c: f32) -> f32 {
-    let nt = n *t;
-    let a = p* (1.0 + r/n).powf(nt) + c * ((1.0 + r/n).powf(nt) - 1.0) * (r/n);
+    let nt = n*t;
+    let rn = r/n;
+    let left_side = p*(1.0+(rn)).powf(nt)-1.0;
+    let right_side =  pmt * ((1.0+(rn)).powf(nt) - 1.0) / (rn);
+    let a = left_side + right_side;
     return a;
 }
 
@@ -81,12 +78,10 @@ impl FinancialData {
     }
 }
 
-
 fn main() -> Result<(), slint::PlatformError> {
     let ui: MainWindow = MainWindow::new()?;
     let ui_handle = ui.as_weak();
     ui.on_calculate(move || {
-        println!("Hello World!");
         let ui = ui_handle.unwrap();
         let data = FinancialData {
             age: ui.get_current_age(),
@@ -104,23 +99,23 @@ fn main() -> Result<(), slint::PlatformError> {
         };
         println!("{data:#?}");
         let stats = data.get_time_stats();
-        println!("Time Statistics: {:#?}", stats);
-        let accurred_amount = compound_interest(data.starting_balance, data.yield_before_retire/100.0, 12.0, stats.yrs_until_retirement);
-        println!("{accurred_amount}");
-        
-        
-        let accurred_amount_w_contrib = compound_interest_with_contribution(
+        println!("Time Statistics: {:#?}", stats);     
+
+        let a = compound_interest_with_contrib(
             data.starting_balance, 
             data.yield_before_retire/100.0,
             12.0,
             stats.yrs_until_retirement,
             data.contrib_monthly);
-        println!("With contrib ${accurred_amount}");
-        let sb = data.starting_balance;
-        let yrs = stats.yrs_until_retirement;
-        ui.set_temp_result(format!("${sb} over {yrs} years:\nWith Contribution: ${accurred_amount_w_contrib}").into());
-        
-        
+
+        let report_str = format!("${:.2} over {} year(s) @ {:.1}% with ${:.2} monthly contribution: ${:.2}",
+            data.starting_balance,
+            stats.yrs_until_retirement,
+            data.yield_before_retire,
+            data.contrib_monthly,
+            a
+            );
+        ui.set_temp_result(report_str.into());
     });
     ui.run()
 }
