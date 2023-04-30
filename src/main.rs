@@ -17,16 +17,31 @@ slint::include_modules!();
 /// ```
 ///
 pub fn compound_interest(p: f32, r: f32, n: f32, t: f32) -> f32 {
-    // A = P(1 + r/n)nt
-    // A = Accrued amount (principal + interest)
-    // P = Principal amount
-    // r = Annual nominal interest rate as a decimal
-    // R = Annual nominal interest rate as a percent
-    // r = R/100
-    // n = number of compounding periods per unit of time
-    // t = time in decimal years; e.g., 6 months is calculated as 0.5 years. Divide your partial year number of months by 12 to get the decimal years.
-    p*(1.0+r/n)*n*t
-    //principal * (1.0 + (rate/100.0 / period)) * period * years
+    // A = P*(1+r/n)^(n*t)
+    // where 
+    //     P is the principal balance, 
+    //     r is the interest rate (as a decimal), 
+    //     n is the number of times interest is compounded per year
+    //     t is the number of years.
+    let compound_interest = p * (1.0 + r/n).powf(n*t) - 1.0;
+    println!("Compound: {compound_interest}");
+    return compound_interest;
+}
+
+pub fn compound_interest_with_contrib(p: f32, r: f32, n: f32, t: f32, pmt: f32) -> f32 {
+    // https://www.bizskinny.com/Finance/Compound-Interest/compound-interest-with-monthly-contributions.php
+    let accurred = compound_interest(p, r, n, t);
+    // A = P(1+(r/n))^(nt) + (PMT(1+(r/n))^(nt)-1) / (r/n)
+    let accurred = (p*(1.0+(r/n)).powf(n*t)) +
+        ((pmt*(1.0+(r/n)).powf(n*t)-1.0) / (r/n));
+    println!("{accurred}");
+    accurred
+}
+
+pub fn compound_interest_with_contribution(p: f32, r: f32, n: f32, t: f32, c: f32) -> f32 {
+    let nt = n *t;
+    let a = p* (1.0 + r/n).powf(nt) + c * ((1.0 + r/n).powf(nt) - 1.0) * (r/n);
+    return a;
 }
 
 #[derive(Debug, Clone)]
@@ -90,8 +105,21 @@ fn main() -> Result<(), slint::PlatformError> {
         println!("{data:#?}");
         let stats = data.get_time_stats();
         println!("Time Statistics: {:#?}", stats);
-        let accurred_amount = compound_interest(data.starting_balance, data.yield_before_retire/100.0, 12.0, stats.yrs_of_retirement);
+        let accurred_amount = compound_interest(data.starting_balance, data.yield_before_retire/100.0, 12.0, stats.yrs_until_retirement);
         println!("{accurred_amount}");
+        
+        
+        let accurred_amount_w_contrib = compound_interest_with_contribution(
+            data.starting_balance, 
+            data.yield_before_retire/100.0,
+            12.0,
+            stats.yrs_until_retirement,
+            data.contrib_monthly);
+        println!("With contrib ${accurred_amount}");
+        let sb = data.starting_balance;
+        let yrs = stats.yrs_until_retirement;
+        ui.set_temp_result(format!("${sb} over {yrs} years:\nWith Contribution: ${accurred_amount_w_contrib}").into());
+        
         
     });
     ui.run()

@@ -92,6 +92,7 @@ export component MainWindow inherits Window {
     out property inflation_rate <=> InflationRateField.value;
     out property annual_income_post <=> AnnualIncomePostField.value;
     out property annual_income_post_decay <=> AnnualIncomePostDecayField.value;
+    in-out property temp_result <=> ResultText.value;
 
     callback calculate();
 
@@ -277,10 +278,19 @@ export component MainWindow inherits Window {
             //width: parent.width;
             height: 300px;
             background: white;
-            Text {
+            TempText := Text {
                 horizontal-alignment: center;
                 vertical-alignment: center;
                 text: "Line Graph will go here";
+                font-size: 20px;
+                color: black;
+            }
+            ResultText := Text {
+                y: TempText.y - 80px;
+                property <string> value: "$0.0";
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                text: self.value;
                 font-size: 20px;
                 color: black;
             }
