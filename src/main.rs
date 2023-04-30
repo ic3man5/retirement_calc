@@ -1,5 +1,3 @@
-use num_format::{Locale, ToFormattedString};
-
 slint::include_modules!();
 
 /// Calculates compound interest and returns the Accrued amount (Principal + Interest)
@@ -78,7 +76,24 @@ impl FinancialData {
     }
 }
 
+use plotters::prelude::*;
+fn draw_test() {
+    let drawing_area = BitMapBackend::new("images/test.png", (600, 300))
+    .into_drawing_area();
+    
+    drawing_area.fill(&WHITE).unwrap();
+    
+    let mut chart = ChartBuilder::on(&drawing_area)
+    .build_cartesian_2d(0..100, 0..100)
+    .unwrap();
+    
+    chart.draw_series(
+    LineSeries::new((0..100).map(|x| (x, 100 - x)), &BLACK),
+    ).unwrap();        
+}
+
 fn main() -> Result<(), slint::PlatformError> {
+    draw_test();
     let ui: MainWindow = MainWindow::new()?;
     let ui_handle = ui.as_weak();
     ui.on_calculate(move || {

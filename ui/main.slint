@@ -7,7 +7,7 @@ export component NumberField inherits Rectangle {
     in property <string> prefix_text: "";
     in property <string> suffix_text: "";
     in property <string> tooltip_text: "";
-    in property <int> title_font_size: 16;
+    in property <int> title_font_size: 14;
     in property <int> entry_font_size: 14;
 
     callback edited <=> txt.edited;
@@ -267,30 +267,29 @@ export component MainWindow inherits Window {
                 }
             }
         }
-
+        ResultText := Text {
+            property <string> value: "$0.0";
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            text: self.value;
+            font-size: 16px;
+            //color: black;
+        }
         Button { 
             text: "Calculate";
             clicked => {
                 root.calculate();
             }
         }
-        LineGraphImage := Rectangle {
+        LineGraphImage :=  Image {
             //width: parent.width;
             height: 300px;
-            background: white;
+            //source: @image-url("images/test.png");
+            //background: white;
             TempText := Text {
                 horizontal-alignment: center;
                 vertical-alignment: center;
                 text: "Line Graph will go here";
-                font-size: 20px;
-                color: black;
-            }
-            ResultText := Text {
-                y: TempText.y - 100px;
-                property <string> value: "$0.0";
-                horizontal-alignment: center;
-                vertical-alignment: center;
-                text: self.value;
                 font-size: 20px;
                 color: black;
             }
