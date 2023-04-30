@@ -93,6 +93,9 @@ export component MainWindow inherits Window {
     out property annual_income_post <=> AnnualIncomePostField.value;
     out property annual_income_post_decay <=> AnnualIncomePostDecayField.value;
     in-out property temp_result <=> ResultText.value;
+    in-out property temp2_result <=> ResultText2.value;
+    in-out property temp3_result <=> ResultText3.value;
+    in-out property line_graph_source <=> LineGraphImage.image_source;
 
     callback calculate();
 
@@ -161,7 +164,7 @@ export component MainWindow inherits Window {
                     title: "Starting Balance";
                     prefix-text: "$";
                     placeholder-text: self.value;
-                    property <float> value: 20000;
+                    property <float> value: 100000;
                     edited(string) => {
                         if (self.text.is-float()) {
                             self.value = self.text.to-float();
@@ -187,7 +190,7 @@ export component MainWindow inherits Window {
                     title: "Monthly Contribution";
                     prefix-text: "$";
                     placeholder-text: self.value;
-                    property <float> value: 1000;
+                    property <float> value: 850;
                     edited(string) => {
                         if (self.text.is-float()) {
                             self.value = self.text.to-float();
@@ -275,6 +278,22 @@ export component MainWindow inherits Window {
             font-size: 16px;
             //color: black;
         }
+        ResultText2 := Text {
+            property <string> value: "$0.0";
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            text: self.value;
+            font-size: 16px;
+            //color: black;
+        }
+        ResultText3 := Text {
+            property <string> value: "$0.0";
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            text: self.value;
+            font-size: 16px;
+            //color: black;
+        }
         Button { 
             text: "Calculate";
             clicked => {
@@ -284,7 +303,8 @@ export component MainWindow inherits Window {
         LineGraphImage :=  Image {
             //width: parent.width;
             height: 300px;
-            //source: @image-url("images/test.png");
+            property <image> image_source: @image-url("images/test.png");
+            source: self.image_source;
             //background: white;
             TempText := Text {
                 horizontal-alignment: center;
